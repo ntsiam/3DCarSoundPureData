@@ -105,14 +105,29 @@ bool Prepare()
 	return connectPD();
 }
 
-void Trigger()
+void Trigger(int type,int var,int value)
 {
 	//m_Data.md_Out = m_Data.md_In;
 	char msg[100];
-	dist+=0.001;
 	//if (dist > -0.1 && dist < 0.1)
 	//	usleep(200000);
-	sprintf(msg,"%lf 1 0 0;",dist);
+	if (var == 1) {
+		if (type == 1) {
+			dist-=0.001;
+			sprintf(msg,"%lf %lf 0 0;",dist,(double)value);
+		} else {
+			dist+=0.001;
+			sprintf(msg,"%lf %lf 0 0;",dist,(double)value);
+		}
+	} else {
+		if (type == 1) {
+			dist-=0.001;
+			sprintf(msg,"%lf %lf 0 0;",(double)value,dist);
+		} else {
+			dist+=0.001;
+			sprintf(msg,"%lf %lf 0 0;",(double)value,dist);
+		}
+	}
 	printf("Sending: %s\n",msg);
 	sendline(msg,conn1);
 }
@@ -120,11 +135,69 @@ void Trigger()
 int main() {
 	bool res;
 	int i=0;
+	int choice = 1,type,var,value;
 	res = Prepare();
-	printf("Sending: x_car y_car x_ego y_ego\n");
-	for (i=0;i<20000;i++) {
-		Trigger();
-		usleep(500);
+	while (1) {
+		printf("Choose starting point of the car and direction.\n");
+		printf("Possible routes are:\n (1) (10,1) -> (-10,1),\n (2) (-10,1) -> (10,1),\n (3) (10,-1) -> (-10,-1),\n (4) (-10,-1) -> (10,-1),\n (5) (1,10) -> (1,-10),\n (6) (1,-10) -> (1,10),\n (7) (-1,10) -> (-1,-10),\n (8) (-1,-10) -> (-1,10)\n");
+		scanf("%d",&choice);
+		printf("Sending: x_car y_car x_ego y_ego\n");
+		switch(choice) {
+			case 1:
+				dist = 10;
+				type = 1;
+				var = 1;
+				value = 1;
+				break;
+			case 2:
+				dist = -10;
+				type = 2;
+				var = 1;
+				value = 1;
+				break;
+			case 3:
+				dist = 10;
+				type = 1;
+				var = 1;
+				value = -1;
+				break;
+			case 4:
+				dist = -10;
+				type = 2;
+				var = 1;
+				value = -1;
+				break;
+			case 5:
+				dist = 10;
+				type = 1;
+				var = 2;
+				value = 1;
+				break;
+			case 6:
+				dist = -10;
+				type = 2;
+				var = 2;
+				value = 1;
+				break;
+			case 7:
+				dist = 10;
+				type = 1;
+				var = 2;
+				value = -1;
+				break;
+			case 8:
+				dist = -10;
+				type = 2;
+				var = 2;
+				value = -1;
+				break;
+			default:
+				break;
+		}
+		for (i=0;i<20000;i++) {
+			Trigger(type,var,value);
+			usleep(500);
+		}
 	}
 	return 0;
 }
