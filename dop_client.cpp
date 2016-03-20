@@ -105,7 +105,7 @@ bool Prepare()
 	return connectPD();
 }
 
-void Trigger(int type,int var,int value)
+void Trigger(int type,int var,int value,int x,int y,int azimuth)
 {
 	//m_Data.md_Out = m_Data.md_In;
 	char msg[100];
@@ -114,18 +114,18 @@ void Trigger(int type,int var,int value)
 	if (var == 1) {
 		if (type == 1) {
 			dist-=0.001;
-			sprintf(msg,"%lf %lf 0 0;",dist,(double)value);
+			sprintf(msg,"%lf %lf %d %d %d;",dist,(double)value,x,y,azimuth);
 		} else {
 			dist+=0.001;
-			sprintf(msg,"%lf %lf 0 0;",dist,(double)value);
+			sprintf(msg,"%lf %lf %d %d %d;",dist,(double)value,x,y,azimuth);
 		}
 	} else {
 		if (type == 1) {
 			dist-=0.001;
-			sprintf(msg,"%lf %lf 0 0;",(double)value,dist);
+			sprintf(msg,"%lf %lf %d %d %d;",(double)value,dist,x,y,azimuth);
 		} else {
 			dist+=0.001;
-			sprintf(msg,"%lf %lf 0 0;",(double)value,dist);
+			sprintf(msg,"%lf %lf %d %d %d;",(double)value,dist,x,y,azimuth);
 		}
 	}
 	printf("Sending: %s\n",msg);
@@ -136,8 +136,13 @@ int main() {
 	bool res;
 	int i=0;
 	int choice = 1,type,var,value;
+	int x,y,azimuth;
 	res = Prepare();
 	while (1) {
+		printf("Enter the coordinates of the viewer, e.g. 0 0: ");
+		scanf("%d %d",&x,&y);
+		printf("Enter the azimuth of the viewer, 0 < azimuth < 360: ");
+		scanf("%d",&azimuth);
 		printf("Choose starting point of the car and direction.\n");
 		printf("Possible routes are:\n (1) (10,1) -> (-10,1),\n (2) (-10,1) -> (10,1),\n (3) (10,-1) -> (-10,-1),\n (4) (-10,-1) -> (10,-1),\n (5) (1,10) -> (1,-10),\n (6) (1,-10) -> (1,10),\n (7) (-1,10) -> (-1,-10),\n (8) (-1,-10) -> (-1,10)\n");
 		scanf("%d",&choice);
@@ -195,7 +200,7 @@ int main() {
 				break;
 		}
 		for (i=0;i<20000;i++) {
-			Trigger(type,var,value);
+			Trigger(type,var,value,x,y,azimuth);
 			usleep(500);
 		}
 	}
